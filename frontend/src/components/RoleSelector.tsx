@@ -10,124 +10,93 @@ interface RoleSelectorProps {
   onQuickPrompt: (prompt: string) => void;
 }
 
+const CUSTOMER_PROMPTS = [
+  { icon: '📅', text: 'What are my active and completed bookings?' },
+  { icon: '💰', text: 'What refund am I eligible for if I cancel 6 hours before pickup?' },
+  { icon: '⚡', text: 'What is the penalty for returning an EV with low battery?' },
+  { icon: '🛠️', text: 'Do I have any recorded damage reports or deductions?' },
+];
+
+const AGENT_PROMPTS = [
+  { icon: '🔍', text: 'Show full details for booking B-0001 including payments' },
+  { icon: '⚠️', text: 'List all damage reports with CHARGED or DISPUTED status' },
+  { icon: '📋', text: 'Compare Cancellation Policy v1 vs v2 key differences' },
+  { icon: '📊', text: 'What is the late return fee structure and tier grace periods?' },
+];
+
 export const RoleSelector: React.FC<RoleSelectorProps> = ({
-  role,
-  onRoleChange,
-  customerId,
-  onCustomerIdChange,
-  bookingId,
-  onBookingIdChange,
-  onQuickPrompt,
+  role, onRoleChange, customerId, onCustomerIdChange,
+  bookingId, onBookingIdChange, onQuickPrompt,
 }) => {
+  const prompts = role === 'CUSTOMER' ? CUSTOMER_PROMPTS : AGENT_PROMPTS;
+
   return (
-    <aside className="control-panel">
-      <div>
-        <h3 className="panel-title">Active Role</h3>
-        <div className="role-switcher" style={{ marginTop: '0.5rem' }}>
+    <aside className="sidebar">
+      {/* Role Toggle */}
+      <div className="sidebar-section">
+        <div className="sidebar-label">Active Role</div>
+        <div className="role-toggle">
           <button
-            type="button"
             className={`role-btn ${role === 'CUSTOMER' ? 'active' : ''}`}
             onClick={() => onRoleChange('CUSTOMER')}
           >
             Customer
           </button>
           <button
-            type="button"
             className={`role-btn ${role === 'SUPPORT_AGENT' ? 'active' : ''}`}
             onClick={() => onRoleChange('SUPPORT_AGENT')}
           >
             Support Agent
           </button>
         </div>
-      </div>
 
-      {role === 'CUSTOMER' && (
-        <div className="input-group">
-          <label className="input-label" htmlFor="customer-id-input">
-            Customer ID (Required)
-          </label>
-          <input
-            id="customer-id-input"
-            className="text-input"
-            type="text"
-            placeholder="e.g. CUST0001"
-            value={customerId}
-            onChange={(e) => onCustomerIdChange(e.target.value.toUpperCase())}
-          />
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
-            Try <strong>CUST0001</strong> (Gold), <strong>CUST0002</strong>
-          </span>
-        </div>
-      )}
-
-      <div className="input-group">
-        <label className="input-label" htmlFor="booking-id-input">
-          Booking ID Context (Optional)
-        </label>
-        <input
-          id="booking-id-input"
-          className="text-input"
-          type="text"
-          placeholder="e.g. B-0001"
-          value={bookingId}
-          onChange={(e) => onBookingIdChange(e.target.value.toUpperCase())}
-        />
-        <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
-          Directs query to a specific reservation
-        </span>
-      </div>
-
-      <div className="quick-prompts-section">
-        <h3 className="panel-title">Quick Test Prompts</h3>
-        {role === 'CUSTOMER' ? (
-          <>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("What are my active and completed bookings?")}
-            >
-              📅 View my bookings
-            </button>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("What is the cancellation refund policy if I cancel 6 hours before pickup?")}
-            >
-              📄 Refund policy (6 hrs before)
-            </button>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("What is the penalty for returning an EV scooter with low battery?")}
-            >
-              ⚡ EV low battery penalty rules
-            </button>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("Do I have any recorded damage reports or deductions?")}
-            >
-              🛠️ Check my damage reports
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("Show details for booking B-0001 including vehicle and payment status")}
-            >
-              🔍 Inspect Booking B-0001
-            </button>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("List all damage reports with status CHARGED or DISPUTED")}
-            >
-              ⚠️ Review open damage claims
-            </button>
-            <button
-              className="quick-prompt-btn"
-              onClick={() => onQuickPrompt("Explain the difference between Cancellation Policy v1 and v2")}
-            >
-              ⚖️ Compare Policy v1 vs v2
-            </button>
-          </>
+        {role === 'CUSTOMER' && (
+          <div className="field">
+            <label className="field-label" htmlFor="cust-id">Customer ID <span style={{color:'var(--danger)'}}>*</span></label>
+            <input
+              id="cust-id"
+              className="input"
+              type="text"
+              placeholder="e.g. CUST0001"
+              value={customerId}
+              onChange={(e) => onCustomerIdChange(e.target.value.toUpperCase())}
+            />
+            <span className="field-hint">Try <strong>CUST0001</strong> (GOLD) or <strong>CUST0002</strong></span>
+          </div>
         )}
+
+        <div className="field">
+          <label className="field-label" htmlFor="book-id">Booking ID <span style={{color:'var(--text-dim)'}}>· Optional</span></label>
+          <input
+            id="book-id"
+            className="input"
+            type="text"
+            placeholder="e.g. B-0001"
+            value={bookingId}
+            onChange={(e) => onBookingIdChange(e.target.value.toUpperCase())}
+          />
+          <span className="field-hint">Focuses the query on a specific booking</span>
+        </div>
+      </div>
+
+      {/* Quick Prompts */}
+      <div className="sidebar-section">
+        <div className="sidebar-label">Quick Prompts</div>
+        <div className="prompts-list">
+          {prompts.map((p, i) => (
+            <button key={i} className="prompt-btn" onClick={() => onQuickPrompt(p.text)}>
+              <span className="prompt-icon">{p.icon}</span>
+              <span>{p.text}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Info Card */}
+      <div className="sidebar-footer">
+        <div className="info-card">
+          <strong>RideWise Assist</strong> queries live operational data from SQLite and 5 official policy documents — all answers are cited and traceable.
+        </div>
       </div>
     </aside>
   );
